@@ -1,0 +1,77 @@
+{
+    "loadCSV": {
+        "type": "primary",
+        "function": "call_load_data",
+        "color": [255, 198, 179, 255]
+    },
+    "SQLrequest": {
+        "type": "primary",
+        "function": "call_extract_from_database",
+        "color": [255, 198, 179, 255]
+    },
+
+    "selectColumns": {
+        "type": "secondary",
+        "menu": "initialize",
+        "function": "call_select_columns",
+        "color": [184, 218, 245, 255]
+    },
+    "selectRows": {
+        "type": "secondary",
+        "menu": "initialize",
+        "function": "call_select_rows",
+        "color": [184, 218, 245, 255]
+    },
+    "standardize": {
+        "type": "secondary",
+        "menu": "initialize",
+        "function": "call_standardize",
+        "color": [184, 218, 245, 255]
+    },
+
+    "round": {
+        "type": "secondary",
+        "menu": "analysis",
+        "function": "call_round",
+        "color": [203, 155, 222, 255]
+    },
+    "describe": {
+        "type": "secondary",
+        "menu": "analysis",
+        "function": "call_describe",
+        "color": [203, 155, 222, 255]
+    },
+    "operation": {
+        "type": "secondary",
+        "menu": "analysis",
+        "function": "call_operation",
+        "color": [203, 155, 222, 255]
+    },
+
+    "merge": {
+        "type": "secondary",
+        "menu": "advanced",
+        "function": "call_merge",
+        "nparents": 2,
+        "color": [155, 222, 163, 255]
+    },
+
+    "timeEventFitting": {
+        "type": "secondary",
+        "menu": "research",
+        "function": "call_fit_closest_event",
+        "nparents": 2,
+        "color": [250, 238, 174, 255]
+    },
+
+    "save": {
+        "type": "secondary",
+        "function": "call_save_data",
+        "nparents": -1,
+        "color": [0, 0, 0, 255]
+    },
+
+    "delete": {
+        "type": "secondary"
+    }
+}

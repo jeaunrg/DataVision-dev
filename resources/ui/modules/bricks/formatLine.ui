@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>380</width>
+    <height>43</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="spacing">
+    <number>7</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QComboBox" name="types">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string>--</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>integer</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>float</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>boolean</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>string</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>datetime</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>timedelta</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="format">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;You can add multiple time format&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;with 'OR' between each one&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;EX: &amp;quot;%d/%m/%Y %H:%M OR %d/%m/%Y&amp;quot;&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Seconds&lt;/span&gt;: %S&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Minutes&lt;/span&gt;: %M&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Hour&lt;/span&gt;&lt;/p&gt;&lt;p&gt;%H: from 00 to 23&lt;/p&gt;&lt;p&gt;%I: from 00 to 12&lt;/p&gt;&lt;p&gt;%p: AM/PM&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Day of the week&lt;/span&gt;&lt;/p&gt;&lt;p&gt;%a: from Mon to Sun&lt;/p&gt;&lt;p&gt;%A: from Monday to Sunday&lt;/p&gt;&lt;p&gt;%w: from 0 to 6&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Day of the month&lt;/span&gt;&lt;/p&gt;&lt;p&gt;%d: from 01 to 31&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Month&lt;/span&gt;&lt;/p&gt;&lt;p&gt;%b: from Jan to Dec&lt;/p&gt;&lt;p&gt;%B: from January to December&lt;/p&gt;&lt;p&gt;%m: from 01 to 12&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Year&lt;/span&gt;&lt;/p&gt;&lt;p&gt;%y: from 00 to 99&lt;/p&gt;&lt;p&gt;%Y: 1999, 2000, ...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="text">
+      <string>%Y-%m-%d %H:%M:%S OR %d/%m/%y %H:%M OR %d/%m/%y OR %d/%m/%Y %H:%M OR %d/%m/%Y</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item alignment="Qt::AlignVCenter">
+    <widget class="QComboBox" name="unit">
+     <item>
+      <property name="text">
+       <string>second</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>W</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>day</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>hour</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>minute</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>millisecond</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>microsecond</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>nanosecond</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="force">
+     <property name="text">
+      <string>force</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
