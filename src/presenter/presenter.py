@@ -160,11 +160,11 @@ class Presenter():
                     module.parameters.params.setCurrentIndex(paramsId)
                     module.parameters.groupBy.clear()
                     module.parameters.groupBy.addItems(list_colnames[paramsId])
-                    for cb in [module.parameters.paramsOn, module.parameters.paramsDatetime,
+                    for cb in [module.parameters.paramsKey, module.parameters.paramsDatetime,
                                module.parameters.paramsValue]:
                         cb.clear()
                         cb.addItems(list_colnames[paramsId])
-                    for cb in [module.parameters.eventOn, module.parameters.eventDatetime,
+                    for cb in [module.parameters.eventKey, module.parameters.eventDatetime,
                                module.parameters.eventName]:
                         cb.clear()
                         cb.addItems(list_colnames[eventId])
@@ -342,6 +342,8 @@ class Presenter():
     @utils.manager(True)
     def call_select_rows(self, module):
         function = self._model.select_rows
+        print(module.parameters.lower_than.text())
+        print(ceval(module.parameters.lower_than.text()), type(ceval(module.parameters.lower_than.text())))
         args = {"df": utils.get_data(module.get_parent_name()),
                 "column": module.parameters.column.currentText(),
                 "equal_to":  ceval(module.parameters.equal_to.text()),
@@ -404,15 +406,17 @@ class Presenter():
         return function, args
 
     @utils.manager(True)
-    def call_fit_closest_event(self, module):
-        function = self._model.fit_closest_event
-        args = {"ref": utils.get_data(module.parameters.event.currentText()),
-                "ref_datetime_colname": module.parameters.eventDatetime.currentText(),
-                "ref_param_colname": module.parameters.eventName.currentText(),
-                "data": utils.get_data(module.parameters.params.currentText()),
-                "datetime_colname": module.parameters.paramsDatetime.currentText(),
-                "value_colname": module.parameters.paramsValue.currentText(),
-                "groupby": module.parameters.groupBy.currentText(),
-                "on": module.parameters.eventOn.currentText()
-                }
+    def call_fit_time_events(self, module):
+        function = self._model.fit_time_events
+        args = {"events": utils.get_data(module.parameters.event.currentText()),
+                "events_key": module.parameters.eventKey.currentText(),
+                "events_datetime": module.parameters.eventDatetime.currentText(),
+                "events_name": module.parameters.eventName.currentText(),
+                "parameter": utils.get_data(module.parameters.params.currentText()),
+                "parameter_key": module.parameters.paramsKey.currentText(),
+                "parameter_datetime": module.parameters.paramsDatetime.currentText(),
+                "parameter_values": module.parameters.paramsValue.currentText(),
+                "parameter_groupby": module.parameters.groupBy.currentText(),
+                "delta_before": ceval(module.parameters.deltaBefore.currentText()),
+                "delta_after": ceval(module.parameters.deltaAfter.currentText())}
         return function, args

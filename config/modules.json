@@ -59,7 +59,7 @@
     "timeEventFitting": {
         "type": "secondary",
         "menu": "research",
-        "function": "call_fit_closest_event",
+        "function": "call_fit_time_events",
         "nparents": 2,
         "color": [250, 238, 174, 255]
     },

@@ -266,6 +266,123 @@ class Model():
             else:
                 df.to_csv(path, sep='\t', decimal=",", encoding="latin-1")
 
+    def fit_time_events(self, events, events_key, events_datetime, events_name,
+                        parameter, parameter_key, parameter_datetime, parameter_values,
+                        parameter_groupby=None, delta_before=None, delta_after=None,
+                        round_freq='D', round_mode="max", column_prefix="", keep_index=False):
+        if parameter_groupby is not None:
+            # apply the 'fit_closest_event' function for each unique value of the
+            # 'groupby' column'
+            outdf = pd.DataFrame()
+            parameter = parameter.set_index(parameter_groupby)
+
+            # loop over 'gropby column unique values'
+            group_names = np.unique(parameter.index)
+            for group_name in group_names:
+                out = self.fit_time_events(events, events_key, events_datetime, events_name,
+                                             parameter.loc[group_name], parameter_key, parameter_datetime, parameter_values,
+                                             None, delta_before, delta_after, round_freq, round_mode,
+                                             column_prefix=group_name, keep_index=True)
+                # concatenate single-parameter result with muli-parameters result
+                outdf = pd.concat([outdf, out], axis=1)
+            outdf = outdf.reset_index()
+
+        else:
+            # initialize
+            events = events.set_index(events_key)
+            events = events[[events_datetime, events_name]]
+
+            parameter = parameter.set_index(parameter_key)
+            parameter = parameter[[parameter_datetime, parameter_values]]
+
+            parameter_keys = np.unique(parameter.index)
+            outdf = {}
+
+            # loop over key index (common to events and parameter)
+            for key in np.unique(events.index):
+                if key not in parameter_keys:
+                    continue
+                subevents = events.loc[[key]]
+                # subparameter = parameter.loc[key]
+                subparameter = parameter.loc[[key]]
+
+                # loop over events
+                for i in range(len(subevents.index)):
+                    eventdate, eventname = subevents.iloc[i]
+                    d = {}
+
+                    for way, delta in zip(['before', 'after'], [delta_before, delta_after]):
+                        if way == 'before':
+                            subparameter['deltas'] = eventdate - subparameter[parameter_datetime]
+                        else:
+                            subparameter['deltas'] = subparameter[parameter_datetime] - eventdate
+                        df = subparameter[subparameter['deltas'] >= "0 days"]
+                        if len(df):
+                            if delta == "closest":
+                                df = df.iloc[df['deltas'].argmin()]
+                                d["_".join([column_prefix, "value "+way])] = df[parameter_values]
+                                d["_".join([column_prefix, "delay "+way])] = df['deltas']
+                            else:
+                                if isinstance(delta, (list, tuple)):
+                                    df = df.loc[np.logical_and(df['deltas'] >= delta[0],
+                                                               df['deltas'] <= delta[1])]
+                                else:
+                                    df = df.loc[df['deltas'] <= delta]
+                                df = self.round(df, 'deltas', mode='floor', freq=round_freq)
+                                df = df.set_index('deltas')
+                                for dt in np.unique(df.index):
+                                    print(df.loc[dt, parameter_values])
+                                    print(df.loc[dt, parameter_values].max())
+                                    if delta == "before":
+                                        d["_".join([column_prefix, -str(dt)])] = df.loc[dt, parameter_values].max()
+                                    else:
+                                        d["_".join([column_prefix, str(dt)])] = df.loc[dt, parameter_values].max()
+
+                    #
+                    # if delta_before:
+                    #     subparameter['deltas'] = eventdate - subparameter[parameter_datetime]
+                    #     df = subparameter[subparameter['deltas'] >= "0 days"]
+                    #     if len(df):
+                    #         if delta_before == "closest":
+                    #             df = df.iloc[df['deltas'].argmin()]
+                    #             d["_".join([column_prefix, "value before"])] = df[parameter_values]
+                    #             d["_".join([column_prefix, "delay before"])] = df['deltas']
+                    #         else:
+                    #             if isinstance(delta_before, (list, tuple)):
+                    #                 df = df.loc[np.logical_and(df['deltas'] >= delta_before[0],
+                    #                                            df['deltas'] <= delta_before[1])]
+                    #             else:
+                    #                 df = df.loc[df['deltas'] <= delta_before]
+                    #             df = self.round(df, 'deltas', mode='floor', freq=round_freq)
+                    #             df = df.set_index('deltas')
+                    #             for dt in np.unique(df.index):
+                    #                 print(df.loc[dt, parameter_values])
+                    #                 print(df.loc[dt, parameter_values].max())
+                    #                 d["_".join([column_prefix, str(dt)])] = df.loc[dt, parameter_values].max()
+                    #
+                    # if delta_after:
+                    #     subparameter['deltas'] = subparameter[parameter_datetime] - eventdate
+                    #     df = subparameter[subparameter['deltas'] >= "0 days"]
+                    #     if len(df):
+                    #         if delta_after == "closest":
+                    #             df = df.iloc[df['deltas'].argmin()]
+                    #             d["_".join([column_prefix, "value after"])] = df[parameter_values]
+                    #             d["_".join([column_prefix, "delay after"])] = df['deltas']
+                    #         else:
+                    #             df = df.loc[df['deltas'] <= delta_after]
+                    #             print(df)
+
+                    outdf[(key, eventname, eventdate)] = d
+
+            # convert result to dataframe
+            outdf = pd.DataFrame.from_dict(outdf, orient='index')
+            outdf.index.names = [events_key, events_name, events_datetime]
+            if not keep_index:
+                outdf = outdf.reset_index()
+
+        return outdf
+
+
     def fit_closest_event(self, events, events_datetime_colname, events_param_colname,
                           data, datetime_colname, value_colname,
                           on, delta=['before', 'after'], groupby=None, column_prefix=""):

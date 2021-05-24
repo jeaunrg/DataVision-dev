@@ -4,6 +4,7 @@ from src import RSC_DIR
 from src.view import utils, ui
 import pandas as pd
 import numpy as np
+import traceback
 
 
 class QGraphicsNode(QtWidgets.QWidget):
@@ -268,7 +269,8 @@ class QGraphicsNode(QtWidgets.QWidget):
             return
         elif isinstance(result, Exception):
             new_widget = QtWidgets.QTextBrowser()
-            new_widget.setPlainText("[{0}] {1}".format(type(result).__name__, result))
+            new_widget.setPlainText("[{0}] {1}\n\n{2}".format(type(result).__name__, result,
+                                    "".join(traceback.format_tb(result.__traceback__)[1:])))
             new_widget.setStyleSheet("color : red; ")
         else:
             if isinstance(result, (int, float, str, bool)):
