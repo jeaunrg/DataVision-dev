@@ -113,7 +113,10 @@ class QCustomTableWidget(QtWidgets.QWidget):
         self.table.setModel(proxyModel)
 
     def setData(self, data):
-        self.Vheader.addItems(['--'] + list(data.columns.astype(str)))
+        try:
+            self.Vheader.addItems(['--'] + list(data.columns.astype(str)))
+        except TypeError:
+            pass
         self.Vheader.currentIndexChanged.connect(self.updateVheader)
         self.rightfoot.setText("{0} x {1}    ({2} {3})".format(*data.shape, *utils.getMemoryUsage(data)))
         self.leftfoot.hide()
@@ -134,7 +137,7 @@ class PandasModel(QtCore.QAbstractTableModel):
             self._data = df.set_index(header_colname)
 
     def format(self, value):
-        return '' if str(value) == 'nan' else str(value)
+        return '' if str(value) in ['nan', 'NaT'] else str(value)
 
     def rowCount(self, parent=None):
         return self._data.shape[0]

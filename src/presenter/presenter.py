@@ -385,7 +385,7 @@ class Presenter():
             args = {"path": module.parameters.path.text(),
                     "dfs": [utils.get_data(n) for n in module.get_parent_names()]}
         else:
-            path = os.path.join(OUT_DIR, module.name + '.csv')
+            path = os.path.join(self._out_dir, module.name + '.csv')
             args = {"path": path,
                     "dfs": [utils.get_data(module.name)]}
             module.result.path.setText(path)
@@ -407,6 +407,11 @@ class Presenter():
 
     @utils.manager(True)
     def call_fit_time_events(self, module):
+        round_freq, round_mode = None, None
+        if module.parameters.round.isChecked():
+            round_freq = module.parameters.roundFreq.currentText()
+            round_mode = module.parameters.roundMode.currentText()
+
         function = self._model.fit_time_events
         args = {"events": utils.get_data(module.parameters.event.currentText()),
                 "events_key": module.parameters.eventKey.currentText(),
@@ -418,5 +423,7 @@ class Presenter():
                 "parameter_values": module.parameters.paramsValue.currentText(),
                 "parameter_groupby": module.parameters.groupBy.currentText(),
                 "delta_before": ceval(module.parameters.deltaBefore.currentText()),
-                "delta_after": ceval(module.parameters.deltaAfter.currentText())}
+                "delta_after": ceval(module.parameters.deltaAfter.currentText()),
+                'round_freq': round_freq,
+                'round_mode': round_mode}
         return function, args
