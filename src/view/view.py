@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtCore, QtGui, uic
-from src import RSC_DIR, DEFAULT, CONFIG_DIR, KEY
+from src import RSC_DIR, DEFAULT, CONFIG_DIR, KEY, update_default
 from src.view import graph, utils, ui
 from cryptography import fernet
 import json
@@ -16,10 +16,11 @@ class View(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi(os.path.join(RSC_DIR, "ui", "MainView.ui"), self)
-        if DEFAULT['window_size'] == 'fullscreen':
-            self.showMaximized()
-        else:
-            self.resize(*DEFAULT['window_size'])
+        # if DEFAULT['window_size'] == 'fullscreen':
+        #     self.showFullScreen()
+        # else:
+        self.resize(*DEFAULT['window_size'])
+        self.move(*DEFAULT['window_position'])
 
         # set short cuts
         self.save = QtWidgets.QShortcut(QtGui.QKeySequence('Ctrl+S'), self)
@@ -169,7 +170,7 @@ class View(QtWidgets.QMainWindow):
         dialog.exec()
         if not os.path.exists(os.path.join(CONFIG_DIR, "sessions")):
             os.makedirs(os.path.join(CONFIG_DIR, "sessions"))
-            
+
         if dialog.out == "Load session":
             return self.loadSession()
         elif dialog.out == "New session":
@@ -181,7 +182,8 @@ class View(QtWidgets.QMainWindow):
         load existing session
         """
         sessions = [i[:-5] for i in os.listdir(os.path.join(CONFIG_DIR, "sessions")) if i != '.gitignore']
-        session, ok = QtWidgets.QInputDialog.getItem(None, "Sessions", 'open session:', sessions, 0, False)
+        session_ind = sessions.index(DEFAULT['last_session'])
+        session, ok = QtWidgets.QInputDialog.getItem(self, "Sessions", 'open session:', sessions, session_ind, False)
         if ok:
             self._password = None
             self.graph.deleteAll()
@@ -189,6 +191,7 @@ class View(QtWidgets.QMainWindow):
             self.setWindowTitle(session)
             self.loadSettings(False)
             self.restoreSettings()
+            update_default(last_session=session)
             return True
         else:
             return self.openSession()
@@ -270,3 +273,8 @@ class View(QtWidgets.QMainWindow):
 
     def restoreSettings(self):
         self.graph.setSettings(self.settings['graph'])
+
+    def closeEvent(self, event):
+        update_default(window_size=[self.size().width(), self.size().height()],
+                       window_position=[self.pos().x(), self.pos().y()])
+        QtWidgets.QMainWindow.closeEvent(self, event)

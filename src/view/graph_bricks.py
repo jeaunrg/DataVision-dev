@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, uic, QtCore, QtGui
 import os
-from src import RSC_DIR
+from src import RSC_DIR, DEFAULT
 from src.view import utils, ui
 import pandas as pd
 import numpy as np
@@ -67,7 +67,7 @@ class QGraphicsNode(QtWidgets.QWidget):
                                     background-color: transparent; \
                                     border-color: transparent; }")
 
-        self.resize(250, 1)  # never resize to 0
+        self.resize(*DEFAULT['node_size'])  # never resize to 0
         self.initConnections()
         self.setState()
 

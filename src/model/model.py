@@ -286,9 +286,11 @@ class Model():
                 # concatenate single-parameter result with muli-parameters result
                 outdf = outdf.append(out)
 
+            outdf = outdf.dropna(axis=1, how='all')
             outdf = outdf.set_index([c for c in outdf.columns if isinstance(c, str)], append=True)
             outdf = outdf.sort_index(axis=1)
             outdf = outdf.reset_index()
+
 
         else:
             # initialize
@@ -357,6 +359,7 @@ class Model():
             outdf = pd.DataFrame.from_dict(outdf, orient='index')
             outdf.index.names = ["group", events_key, events_name, events_datetime]
             if not keep_index:
+                outdf = outdf.dropna(axis=1, how='all')
                 outdf = outdf.set_index([c for c in outdf.columns if isinstance(c, str)], append=True)
                 outdf = outdf.sort_index(axis=1)
                 outdf = outdf.reset_index()

@@ -1,9 +1,25 @@
 {
-    "window_size": [1300, 800],
-    "tablewindow_size": [800, 800],
-
-    "space_between_nodes": [50, 50],
+    "window_size": [
+        958,
+        1003
+    ],
+    "window_position": [
+        0,
+        0
+    ],
+    "tablewindow_size": [
+        800,
+        800
+    ],
+    "node_size": [
+        250,
+        74
+    ],
+    "space_between_nodes": [
+        50,
+        50
+    ],
     "style": "Default",
-    "theme": "bright"
-
+    "theme": "bright",
+    "last_session": "test4"
 }

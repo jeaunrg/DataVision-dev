@@ -108,5 +108,4 @@ def setValue(widget, value):
         setValue(widget.unit, value[2])
     elif isinstance(widget, ui.QGridButtonGroup):
         for button in widget.group.buttons():
-            if button.text() in value:
-                setValue(button, True)
+            setValue(button, button.text() in value)

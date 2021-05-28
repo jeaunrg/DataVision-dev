@@ -30,22 +30,25 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
      <item>
-      <widget class="QRadioButton" name="selectAll">
+      <widget class="QPushButton" name="selectAll">
        <property name="text">
         <string>select all</string>
        </property>
        <property name="checkable">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="checked">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="deselectAll">
+      <widget class="QPushButton" name="deselectAll">
        <property name="text">
         <string>deselect all</string>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -62,7 +65,7 @@
         <x>0</x>
         <y>0</y>
         <width>380</width>
-        <height>85</height>
+        <height>77</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">

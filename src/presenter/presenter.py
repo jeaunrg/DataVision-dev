@@ -342,8 +342,6 @@ class Presenter():
     @utils.manager(True)
     def call_select_rows(self, module):
         function = self._model.select_rows
-        print(module.parameters.lower_than.text())
-        print(ceval(module.parameters.lower_than.text()), type(ceval(module.parameters.lower_than.text())))
         args = {"df": utils.get_data(module.get_parent_name()),
                 "column": module.parameters.column.currentText(),
                 "equal_to":  ceval(module.parameters.equal_to.text()),

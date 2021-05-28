@@ -16,3 +16,9 @@ RESULT_STACK = {}
 # load default global parameters
 with open(os.path.join(CONFIG_DIR, "default.json"), "r") as f:
     DEFAULT = json.load(f)
+
+def update_default(**kwargs):
+    global DEFAULT
+    DEFAULT.update(kwargs)
+    with open(os.path.join(CONFIG_DIR, "default.json"), "w") as f:
+        json.dump(DEFAULT, f, indent=4)
