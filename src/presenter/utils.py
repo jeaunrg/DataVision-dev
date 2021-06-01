@@ -1,6 +1,7 @@
 from PyQt5 import QtCore
 from src import RESULT_STACK
 import copy
+import functools
 
 
 class Runner(QtCore.QThread):
@@ -42,34 +43,35 @@ def manager(threadable=True):
 
     """
     def decorator(foo):
-        def inner(presenter, module):
-            cont = presenter.prior_manager(module)
+        @functools.wraps(foo)
+        def inner(presenter, module, submodule=None):
+            cont = presenter.prior_manager(module, submodule)
             if not cont:
                 return
-            function, args = foo(presenter, module)
+            function, args = foo(presenter, module, submodule)
             function = protector(function)
 
             # start the process inside a QThread
             if threadable and presenter.threading_enabled:
                 runner = Runner(function, **args)
+                if '_runners' not in module.__dict__:
+                    module._runners = []
                 module._runners.append(runner)
-                runner.finished.connect(lambda: (presenter.post_manager(module, runner.out),
+                runner.finished.connect(lambda: (presenter.post_manager(module, submodule, runner.out),
                                                  deleteRunner(module, runner)))
                 runner.start()
             else:
-                presenter.post_manager(module, function(**args))
+                presenter.post_manager(module, submodule, function(**args))
         return inner
     return decorator
 
 
 def protector(foo):
-    """
-    function used as decorator to avoid the app to crash because of basic errors
-    """
     def inner(*args, **kwargs):
         try:
             return foo(*args, **kwargs)
         except Exception as e:
+            print(e)
             return e
     return inner
 
@@ -85,6 +87,7 @@ def get_unavailable(names):
 def get_data(name):
     if name in RESULT_STACK:
         return copy.copy(RESULT_STACK[name])
+
 
 
 def get_checked(widget, names=None):

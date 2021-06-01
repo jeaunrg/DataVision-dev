@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>379</width>
-    <height>141</height>
+    <width>427</width>
+    <height>256</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -31,28 +31,44 @@
         </size>
        </property>
        <property name="text">
-        <string>C:/Users/jean/Desktop/PyQTapp_template/resources/data/fake_data_transfusion.csv</string>
+        <string/>
        </property>
        <property name="dragEnabled">
         <bool>true</bool>
        </property>
        <property name="placeholderText">
-        <string>path to csv...</string>
+        <string>path to data...</string>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item alignment="Qt::AlignTop">
       <widget class="QToolButton" name="browse">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;browse file&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string>...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="appendBrowse">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;browse file and append it to existant&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="text">
+        <string>+</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <layout class="QGridLayout" name="gridLayout_3">
-     <item row="0" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
       <widget class="QLabel" name="label_11">
        <property name="text">
         <string>header</string>
@@ -62,54 +78,14 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="5">
-      <widget class="QCheckBox" name="clean">
-       <property name="text">
-        <string>clean</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_13">
-       <property name="text">
-        <string>separator</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QLabel" name="label_14">
-       <property name="text">
-        <string>decimal</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_15">
-       <property name="text">
-        <string>encoding</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
+     <item>
       <widget class="QLineEdit" name="header">
        <property name="text">
-        <string>5</string>
+        <string/>
        </property>
       </widget>
      </item>
-     <item row="0" column="5">
+     <item>
       <widget class="QCheckBox" name="sort">
        <property name="text">
         <string>sort</string>
@@ -119,73 +95,163 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="3">
-      <widget class="QComboBox" name="separator">
-       <property name="editable">
+     <item>
+      <widget class="QCheckBox" name="clean">
+       <property name="text">
+        <string>clean</string>
+       </property>
+       <property name="checked">
         <bool>true</bool>
        </property>
-       <item>
-        <property name="text">
-         <string>{tabulation}</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>;</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>,</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>:</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>{espace}</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="1" column="3">
-      <widget class="QComboBox" name="decimal">
-       <property name="editable">
-        <bool>true</bool>
-       </property>
-       <item>
-        <property name="text">
-         <string>,</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>.</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="encoding">
-       <property name="editable">
-        <bool>true</bool>
-       </property>
-       <item>
-        <property name="text">
-         <string>latin-1</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>utf-8</string>
-        </property>
-       </item>
       </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QWidget" name="detailsCSV" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label_15">
+        <property name="text">
+         <string>encoding</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="encoding">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <item>
+         <property name="text">
+          <string>latin-1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>utf-8</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>decimal</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="decimal">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <item>
+         <property name="text">
+          <string>,</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>.</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_13">
+        <property name="text">
+         <string>separator</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="separator">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <item>
+         <property name="text">
+          <string>{tabulation}</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>;</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>,</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>:</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>{espace}</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="detailsXLS" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>sheet</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="sheet">
+        <property name="text">
+         <string>0</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <widget class="QPushButton" name="apply">

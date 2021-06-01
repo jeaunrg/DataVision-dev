@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>336</width>
-    <height>357</height>
+    <width>323</width>
+    <height>369</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -116,7 +116,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QComboBox" name="event">
+      <widget class="QComboBox" name="A_event">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -489,6 +489,16 @@
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="dropEmpty">
+     <property name="text">
+      <string>drop empty lines</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>

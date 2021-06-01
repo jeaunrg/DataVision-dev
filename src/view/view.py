@@ -16,9 +16,6 @@ class View(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         uic.loadUi(os.path.join(RSC_DIR, "ui", "MainView.ui"), self)
-        # if DEFAULT['window_size'] == 'fullscreen':
-        #     self.showFullScreen()
-        # else:
         self.resize(*DEFAULT['window_size'])
         self.move(*DEFAULT['window_position'])
 
@@ -111,20 +108,9 @@ class View(QtWidgets.QMainWindow):
             lst.append(k)
             utils.dict_from_list(self.menu, lst)
             self.modules_parameters[k] = {'color': values.get('color'),
-                                          'nparents': values.get('nparents')}
-
-    def addModule(self, moduleName):
-        """
-        add a new module in the central layout
-
-        Parameters
-        ----------
-        moduleName: str
-
-        """
-        module = uic.loadUi(os.path.join(RSC_DIR, "ui", moduleName+".ui"))
-        self.hbox.addWidget(module)
-        self.modules[moduleName] = module
+                                          'submodules': values.get('submodules'),
+                                          'nparents': values.get('nparents'),
+                                          'label': values.get('label')}
 
     def addWidgetInDock(self, widget, side=QtCore.Qt.RightDockWidgetArea, unique=True):
         """

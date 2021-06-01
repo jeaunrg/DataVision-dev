@@ -4,7 +4,6 @@ from src import RSC_DIR, DEFAULT
 from src.view import utils, ui
 import pandas as pd
 import numpy as np
-import traceback
 
 
 class QGraphicsNode(QtWidgets.QWidget):
@@ -12,6 +11,7 @@ class QGraphicsNode(QtWidgets.QWidget):
     focused = QtCore.pyqtSignal(bool)
     nameChanged = QtCore.pyqtSignal(str, str)
     saveDataClicked = QtCore.pyqtSignal()
+    dfresultUpdated = QtCore.pyqtSignal()
     """
     movable widget inside the graph associated to a pipeline's step
 
@@ -28,12 +28,13 @@ class QGraphicsNode(QtWidgets.QWidget):
         position of the node in the graphic view
 
     """
-    def __init__(self, graph, type, name, parents=[], *args, **kwargs):
+    def __init__(self, graph, type, name, parents=[], submodules=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.graph = graph
         self.type = type
         self.name = name
         self.parents = parents
+        self.submodules = submodules
         self.childs = []
         self.links = []
         self.color = None
@@ -56,20 +57,54 @@ class QGraphicsNode(QtWidgets.QWidget):
     def initUI(self, name):
         uic.loadUi(os.path.join(RSC_DIR, "ui", "Node.ui"), self)
 
+        ui.setButtonIcon(self.playButton, "play.png")
+        ui.setButtonIcon(self.openParametersButton, "parameters.png")
+        ui.setButtonIcon(self.openResultButton, "table.png")
+
         self.grap = utils.replaceWidget(self.grap, ui.QGrap())
         self.openButton.setText(name)
         self._item.setRect(QtCore.QRectF(self.geometry().adjusted(0, 0, 0, 0)))
 
-        self.parameters = uic.loadUi(os.path.join(RSC_DIR, 'ui', 'modules', self.type+'.ui'))
         self.result = QtWidgets.QWidget()
+        if self.submodules is None:
+            self.parameters = uic.loadUi(os.path.join(RSC_DIR, 'ui', 'modules', self.type+'.ui'))
+        else:
+            self.parameters = ui.QMultiWidget()
+            for tpe in self.submodules:
+                w = uic.loadUi(os.path.join(RSC_DIR, 'ui', 'modules', tpe+'.ui'))
+                ui.setButtonIcon(w.apply, "play.png")
+                self.parameters.addWidget(w, tpe)
+                w.propagation_child = None
+                w.name = tpe
+            self.parameters.apply.clicked.connect(lambda: self.graph.releaseData(self))
+            self.parameters.apply.clicked.connect(w.apply.clicked.emit)
+        ui.setButtonIcon(self.parameters.apply, "play.png")
 
         self.loading.setStyleSheet("QProgressBar { \
                                     background-color: transparent; \
                                     border-color: transparent; }")
 
-        self.resize(*DEFAULT['node_size'])  # never resize to 0
+        # self.resize(*DEFAULT['node_size'])  # never resize to 0
         self.initConnections()
         self.setState()
+
+    def getNparents(self, submodule=None):
+        if submodule is not None and self.submodules.index(submodule) > 0:
+            return 1
+        else:
+            return len(self.parents)
+
+    def childSubmodule(self, submodule):
+        if submodule is None or submodule == self.submodules[-1]:
+            return None
+        ind = self.submodules.index(submodule)
+        return self.submodules[ind+1]
+
+    def parentSubmodule(self, submodule):
+        if submodule is None or submodule == self.submodules[0]:
+            return None
+        ind = self.submodules.index(submodule)
+        return self.submodules[ind-1]
 
     def resizeEvent(self, event):
         rect = self._item.rect()
@@ -90,6 +125,8 @@ class QGraphicsNode(QtWidgets.QWidget):
 
         self.openParametersButton.clicked.connect(self.openParameters)
         self.openResultButton.clicked.connect(self.openResult)
+
+        self.playButton.clicked.connect(self.parameters.apply.clicked.emit)
 
     class QCustomRectItem(QtWidgets.QGraphicsRectItem):
         """
@@ -145,8 +182,11 @@ class QGraphicsNode(QtWidgets.QWidget):
     def get_parent_names(self):
         return [p.name for p in self.parents]
 
-    def get_parent_name(self, i=0):
-        return self.parents[i].name
+    def get_parent_name(self, submodule=None):
+        if submodule is None or submodule == self.submodules[0]:
+            return self.parents[0].name
+        else:
+            return self.name
 
     def moveSelection(self):
         if self is self.graph.focus:
@@ -228,19 +268,34 @@ class QGraphicsNode(QtWidgets.QWidget):
         if settings is None:
             return
 
-        for name, w in self.parameters.__dict__.items():
-            if name in settings['parameters']:
-                utils.setValue(w, settings['parameters'][name])
+        if self.submodules is not None:
+            for submodule, widget in sorted(self.parameters.widgets.items()):
+                for name, w in widget.__dict__.items():
+                    if name in settings['parameters'][submodule]:
+                        value = utils.setValue(w, settings['parameters'][submodule][name])
+        else:
+            for name, w in sorted(self.parameters.__dict__.items()):
+                if name in settings['parameters']:
+                    utils.setValue(w, settings['parameters'][name])
 
         state = settings['state']
         self.graph.editNode(self, state['name'], state['color'])
 
     def getSettings(self):
         settings = {'parameters': {}}
-        for name, w in self.parameters.__dict__.items():
-            value = utils.getValue(w)
-            if value is not None:
-                settings['parameters'][name] = value
+        if self.submodules is not None:
+            for submodule, widget in self.parameters.widgets.items():
+                d = {}
+                for name, w in widget.__dict__.items():
+                    value = utils.getValue(w)
+                    if value is not None:
+                        d[name] = value
+                settings['parameters'][submodule] = d
+        else:
+            for name, w in self.parameters.__dict__.items():
+                value = utils.getValue(w)
+                if value is not None:
+                    settings['parameters'][name] = value
         settings['state'] = {'name': self.name,
                              'type': self.type,
                              'parents': [p.name for p in self.parents],
@@ -254,7 +309,7 @@ class QGraphicsNode(QtWidgets.QWidget):
     def openResult(self):
         self.addWidgetInDock(self.result, QtCore.Qt.RightDockWidgetArea)
 
-    def updateResult(self, result):
+    def updateResult(self, result=None):
         """
         This function create widget from result and show it. The created widget
         depends on the result type
@@ -269,19 +324,26 @@ class QGraphicsNode(QtWidgets.QWidget):
             return
         elif isinstance(result, Exception):
             new_widget = QtWidgets.QTextBrowser()
-            new_widget.setPlainText("[{0}] {1}\n\n{2}".format(type(result).__name__, result,
-                                    "".join(traceback.format_tb(result.__traceback__)[1:])))
+            new_widget.setPlainText(type(result).__name__)
             new_widget.setStyleSheet("color : red; ")
-        else:
-            if isinstance(result, (int, float, str, bool)):
-                new_widget = self.computeTextWidget(result)
-            elif isinstance(result, pd.DataFrame):
-                new_widget = ui.QCustomTableWidget(result)
-                new_widget.save.clicked.connect(self.saveDataClicked.emit)
+            ui.showError("Warning", result)
+        elif isinstance(result, (int, float, str, bool)):
+            new_widget = QtWidgets.QTextBrowser()
+            new_widget.setPlainText(str(result))
+        elif isinstance(result, pd.DataFrame):
+            new_widget = ui.QCustomTableWidget(result)
+            new_widget.save.clicked.connect(self.saveDataClicked.emit)
+            new_widget.release.clicked.connect(self.releaseData)
 
         # replace current output widget with the new one
         self.result = utils.replaceWidget(self.result, new_widget)
+        if isinstance(new_widget, ui.QCustomTableWidget):
+            self.dfresultUpdated.emit()
 
+
+    def releaseData(self):
+        self.graph.releaseData(self)
+        self.updateResult("Data released")
 
 def ceval(arg):
     try:

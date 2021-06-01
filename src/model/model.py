@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 import copy
 import matplotlib
 import matplotlib.pyplot as plt
+import xlrd
+import openpyxl
 
 
 class Model():
@@ -75,6 +77,12 @@ class Model():
             print(df[colname])
         return df
 
+    def quick_plot(self, df, index=None):
+        if index is not None:
+            df = df.set_index(index)
+        df.T.plot()
+        plt.show()
+
     def reform(self, df, colname_as_index, colname_as_header, colname_as_values):
         indexes = np.unique(df[colname_as_index])
         headers = np.unique(df[colname_as_header])
@@ -92,12 +100,23 @@ class Model():
             else:
                 v = str(list(v))
             new_df.loc[i, h] = v
-        # new_df = new_df.fillna("")
         new_df = new_df.reset_index()
         return new_df
 
-    def load_data(self, path, separator="\t", decimal=",", header=None, encoding="latin-1", clean=True, sort=False):
-        df = pd.read_csv(path, sep=separator, decimal=decimal, encoding=encoding, index_col=None, header=header)
+    def load_data(self, path, separator="\t", decimal=",", header=None, encoding="latin-1", clean=True, sort=False, sheet=0):
+        if isinstance(path, list):
+            merged_df = pd.DataFrame()
+            for p in path:
+                df = self.load_data(p, separator, decimal, header, encoding, clean, sort, sheet)
+                merged_df = merged_df.append(df)
+            return merged_df
+
+        if path.endswith('.csv'):
+            df = pd.read_csv(path, sep=separator, decimal=decimal, encoding=encoding, index_col=None, header=header)
+        elif path.endswith('.xls'):
+            df = pd.read_excel(path, sheet_name=sheet, header=header, engine='xlrd')
+        elif path.endswith('.xlsx'):
+            df = pd.read_excel(path, sheet_name=sheet, header=header, engine='openpyxl')
         if clean:
             df = self.clean_dataframe(df)
         df = df.convert_dtypes()
@@ -269,8 +288,9 @@ class Model():
     def fit_time_events(self, events, events_key, events_datetime, events_name,
                         parameter, parameter_key, parameter_datetime, parameter_values,
                         parameter_groupby=None, delta_before=None, delta_after=None,
-                        round_freq='D', round_mode="max", group="", keep_index=False):
-        if parameter_groupby is not None:
+                        round_freq='D', round_mode="max", group="", keep_index=False,
+                        drop_empty=False):
+        if parameter_groupby:
             # apply the 'fit_closest_event' function for each unique value of the
             # 'groupby' column'
             outdf = pd.DataFrame()
@@ -282,14 +302,17 @@ class Model():
                 out = self.fit_time_events(events, events_key, events_datetime, events_name,
                                              parameter.loc[group_name], parameter_key, parameter_datetime, parameter_values,
                                              None, delta_before, delta_after, round_freq, round_mode,
-                                             group=group_name, keep_index=True)
+                                             group=group_name, keep_index=True, drop_empty=drop_empty)
                 # concatenate single-parameter result with muli-parameters result
                 outdf = outdf.append(out)
 
             outdf = outdf.dropna(axis=1, how='all')
             outdf = outdf.set_index([c for c in outdf.columns if isinstance(c, str)], append=True)
             outdf = outdf.sort_index(axis=1)
+            if drop_empty:
+                outdf = outdf.dropna(axis=0, how='all')
             outdf = outdf.reset_index()
+
 
 
         else:
@@ -362,7 +385,10 @@ class Model():
                 outdf = outdf.dropna(axis=1, how='all')
                 outdf = outdf.set_index([c for c in outdf.columns if isinstance(c, str)], append=True)
                 outdf = outdf.sort_index(axis=1)
+                if drop_empty:
+                    outdf = outdf.dropna(axis=0, how='all')
                 outdf = outdf.reset_index()
+                outdf = outdf.drop('group', axis=1)
 
         return outdf
 

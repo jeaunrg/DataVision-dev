@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
-from src.view import utils
+from src.view.utils import menu_from_dict, protector
 from src.view.graph_bricks import QGraphicsNode, QGraphicsLink
 from src import DEFAULT, RESULT_STACK
 import copy
@@ -43,6 +43,7 @@ class QGraph(QtWidgets.QGraphicsView):
         self.nodes = {}
         self.focus = None
 
+    @protector("Critical")
     def bind(self, parent, child):
         """
         create a link between a parent and a child node
@@ -138,6 +139,7 @@ class QGraph(QtWidgets.QGraphicsView):
             i += 1
         return new_name
 
+    @protector("Critical")
     def openMenu(self, node=None):
         """
         open menu on right-clic at clicked position
@@ -180,7 +182,7 @@ class QGraph(QtWidgets.QGraphicsView):
                         self._view.setStatusTip("This node must have {0} \
                                                  parents, got {1}".format(nparents, len(parents)))
 
-        menu = utils.menu_from_dict(acts, activation_function=activate)
+        menu = menu_from_dict(acts, activation_function=activate)
         pos = QtGui.QCursor.pos()
         self._mouse_position = self.mapToScene(self.mapFromGlobal(pos))
         menu.exec_(QtGui.QCursor.pos())
@@ -189,6 +191,7 @@ class QGraph(QtWidgets.QGraphicsView):
         self.renameNode(node, new_name)
         self.colorizeNode(node, new_color)
 
+    @protector("Warning")
     def renameNode(self, node, new_name=None):
         if new_name is None:
             new_name, valid = QtWidgets.QInputDialog.getText(self, "user input", "new name",
@@ -201,6 +204,11 @@ class QGraph(QtWidgets.QGraphicsView):
             RESULT_STACK[new_name] = RESULT_STACK.pop(node.name)
         node.rename(new_name)
 
+    def releaseData(self, node):
+        if node.name in RESULT_STACK:
+            del RESULT_STACK[node.name]
+
+    @protector("Information")
     def colorizeNode(self, node, new_color=None):
         if new_color is None:
             new_color = QtWidgets.QColorDialog.getColor(node.color)
@@ -211,6 +219,7 @@ class QGraph(QtWidgets.QGraphicsView):
         while self.nodes:
             self.deleteBranch(list(self.nodes.values())[0])
 
+    @protector("Critical")
     def deleteBranch(self, parent, childs_only=False):
         """
         delete node, its children and the associated data recursively
@@ -225,8 +234,7 @@ class QGraph(QtWidgets.QGraphicsView):
         if parent.name not in self.nodes:
             return
         # delete data
-        if parent.name in RESULT_STACK:
-            del RESULT_STACK[parent.name]
+        self.releaseData(parent)
         # delete children if has no other parent
         for child in parent.childs:
             child.parents.remove(parent)
@@ -239,7 +247,8 @@ class QGraph(QtWidgets.QGraphicsView):
         parent.delete()
         del self.nodes[parent.name]
 
-    def addNode(self, type, parents=None, position=None):
+    @protector("Critical")
+    def addNode(self, type, parents=None, position=None, size=None, color=None, name=None):
         """
         create a node with specified parent nodes
 
@@ -250,6 +259,12 @@ class QGraph(QtWidgets.QGraphicsView):
         parents: list of QGraphicsNode or QGraphicsNode
 
         """
+        if name is None:
+            name = self.getUniqueName(type)
+        if size is None:
+            size = DEFAULT['node_size']
+        if color is None:
+            color = self._view.modules_parameters[type].get('color')
         if parents is None:
             parents = []
         if not isinstance(parents, list):
@@ -259,8 +274,8 @@ class QGraph(QtWidgets.QGraphicsView):
             if isinstance(parent, str):
                 parents[i] = self.nodes[parent]
 
-        name = self.getUniqueName(type)
-        node = QGraphicsNode(self, type, name, parents)
+        node = QGraphicsNode(self, type, name, parents,
+                             submodules=self._view.modules_parameters[type].get('submodules'))
         node.addToScene(self.scene)
 
         if not parents:
@@ -292,9 +307,11 @@ class QGraph(QtWidgets.QGraphicsView):
         self.nodes[name] = node
         self.nodeAdded.emit(node)
 
-        node.setColor(self._view.modules_parameters[type]['color'])
+        node.resize(*size)
+        node.setColor(color)
         return node
 
+    @protector("Warning")
     def setSettings(self, settings):
         """
         restore graph architecture and node parameters
@@ -306,9 +323,11 @@ class QGraph(QtWidgets.QGraphicsView):
 
         """
         for name, values in settings.items():
-            node = self.addNode(values['state']['type'], values['state']['parents'], values['state']['position'])
-            node.setSettings(values)
+            node = self.addNode(**values['state'])
+            if not isinstance(node, Exception):
+                node.setSettings(values)
 
+    @protector("Warning")
     def getSettings(self):
         """
         get graph architecture and node parameters

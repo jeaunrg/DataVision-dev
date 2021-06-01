@@ -1,14 +1,20 @@
 {
-    "loadCSV": {
+    "loadData": {
         "type": "primary",
-        "function": "call_load_data",
+        "submodules": ["loadCSV", "selectColumns", "standardize"],
         "color": [255, 198, 179, 255]
     },
     "SQLrequest": {
-        "type": "primary",
+        "type": null,
         "function": "call_extract_from_database",
         "color": [255, 198, 179, 255]
     },
+    "loadCSV": {
+        "type": null,
+        "function": "call_load_data",
+        "color": [255, 198, 179, 255]
+    },
+
 
     "selectColumns": {
         "type": "secondary",

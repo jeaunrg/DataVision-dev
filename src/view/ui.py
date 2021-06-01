@@ -1,8 +1,30 @@
-from PyQt5 import QtWidgets, uic, QtCore
+from PyQt5 import QtWidgets, uic, QtCore, QtGui
 from src.view import utils
 from src import RSC_DIR
 import os
 import numpy as np
+import traceback
+
+
+def setButtonIcon(button, img, append=False):
+    icon = QtGui.QIcon()
+    icon.addPixmap(QtGui.QPixmap(os.path.join(RSC_DIR, "icon", img)), QtGui.QIcon.Normal, QtGui.QIcon.On)
+    if not append:
+        button.setText("")
+    button.setIcon(icon)
+    button.setFlat(True)
+    button.setCursor(QtCore.Qt.PointingHandCursor)
+
+
+def showError(level, error):
+    """
+    level: {NoIcon, Qestion, Information, Warning, Critical}
+    """
+    msg = "{0}\n{1}".format(type(error).__name__, error)
+    dialog = QtWidgets.QMessageBox(eval("QtWidgets.QMessageBox."+level),
+                                   level, msg, QtWidgets.QMessageBox.Ok)
+    dialog.setDetailedText("".join(traceback.format_tb(error.__traceback__)[1:]))
+    dialog.exec()
 
 
 class QGrap(QtWidgets.QWidget):
@@ -42,6 +64,35 @@ class QFormatLine(QtWidgets.QWidget):
 
     def hideUnit(self):
         self.unit.show() if self.types.currentText() == 'timedelta' else self.unit.hide()
+
+
+class QTypeForm(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        self.form = QtWidgets.QFormLayout()
+        self.setLayout(self.form)
+        self.rows = {}
+
+    def addRow(self, name):
+        row = uic.loadUi(os.path.join(RSC_DIR, 'ui', 'modules', 'bricks', 'formatLine.ui'))
+        row.types.currentTextChanged.connect(lambda txt: self.hideDetails(row, txt))
+        row.format.hide()
+        row.unit.hide()
+
+        self.form.addRow(name, row)
+        self.rows[name] = row
+
+    def addRows(self, names):
+        for name in names:
+            self.addRow(name)
+
+    def hideDetails(self, row, txt):
+        row.format.hide()
+        row.unit.hide()
+        if txt == 'datetime':
+            row.format.show()
+        elif txt == 'timedelta':
+            row.unit.show()
 
 
 class QGridButtonGroup(QtWidgets.QWidget):
@@ -102,6 +153,10 @@ class QCustomTableWidget(QtWidgets.QWidget):
     def __init__(self, data=None):
         super().__init__()
         uic.loadUi(os.path.join(RSC_DIR, 'ui', 'TableWidget.ui'), self)
+        setButtonIcon(self.save, "save.png")
+        setButtonIcon(self.release, "release.png")
+        setButtonIcon(self.quickPlot, "plot.png")
+
         self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
         if data is not None:
             self.setData(data)
@@ -114,7 +169,7 @@ class QCustomTableWidget(QtWidgets.QWidget):
 
     def setData(self, data):
         try:
-            self.Vheader.addItems(['--'] + list(data.columns.astype(str)))
+            self.Vheader.addItems([''] + list(data.columns.astype(str)))
         except TypeError:
             pass
         self.Vheader.currentIndexChanged.connect(self.updateVheader)
@@ -155,6 +210,26 @@ class PandasModel(QtCore.QAbstractTableModel):
             return self.format(self._data.columns[col])
         elif orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
             return self.format(self._data.index[col])
+
+
+class QMultiWidget(QtWidgets.QWidget):
+    def __init__(self, widgets=[], names=[]):
+        super().__init__()
+        layout = QtWidgets.QVBoxLayout()
+        self.tab = QtWidgets.QTabWidget()
+        layout.addWidget(self.tab)
+        self.apply = QtWidgets.QPushButton('apply')
+        layout.addWidget(self.apply)
+        self.setLayout(layout)
+        self.widgets = {}
+        for widget, name in zip(widgets, names):
+            self.addWidget(widget, name)
+
+    def addWidget(self, widget, name):
+        self.tab.addTab(widget, name)
+        self.tab.setCurrentIndex(0)
+        self.widgets[name] = widget
+        return widget
 
 
 class QCustomDialog(QtWidgets.QDialog):

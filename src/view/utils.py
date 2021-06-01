@@ -78,6 +78,23 @@ def getMemoryUsage(object):
         memory = int(np.round(memory/1000, 0))
 
 
+def protector(level="Warning"):
+    """
+    function used as decorator to avoid the app to crash because of basic errors
+    level: {Warning, Critical, Information, Question, NoIcon}
+    """
+    def decorator(foo):
+        def inner(*args, **kwargs):
+            try:
+                return foo(*args, **kwargs)
+            except Exception as e:
+                print(e)
+                ui.showError(level, e)
+                return e
+        return inner
+    return decorator
+
+
 def getValue(widget):
     if isinstance(widget, (QtWidgets.QCheckBox, QtWidgets.QRadioButton)) or \
        isinstance(widget, QtWidgets.QPushButton) and widget.isCheckable():
@@ -86,26 +103,33 @@ def getValue(widget):
         return widget.text()
     elif isinstance(widget, QtWidgets.QComboBox):
         return widget.currentText()
-    elif isinstance(widget, ui.QFormatLine):
-        return [getValue(widget.types), getValue(widget.format), getValue(widget.unit)]
     elif isinstance(widget, ui.QGridButtonGroup):
         return widget.checkedButtonsText()
+    elif isinstance(widget, ui.QTypeForm):
+        values = {}
+        for name, row in widget.rows.items():
+            values[name] = [getValue(row.types), getValue(row.format),
+                            getValue(row.unit), getValue(row.force)]
+        return values
 
 
 def setValue(widget, value):
     if isinstance(widget, (QtWidgets.QCheckBox, QtWidgets.QRadioButton)) or \
        isinstance(widget, QtWidgets.QPushButton) and widget.isCheckable():
         widget.setChecked(value)
+        widget.clicked.emit()
     elif isinstance(widget, QtWidgets.QLineEdit):
         widget.setText(value)
         widget.editingFinished.emit()
     elif isinstance(widget, QtWidgets.QComboBox):
         widget.setCurrentText(value)
-        widget.currentTextChanged.emit(value)
-    elif isinstance(widget, ui.QFormatLine):
-        setValue(widget.types, value[0])
-        setValue(widget.format, value[1])
-        setValue(widget.unit, value[2])
     elif isinstance(widget, ui.QGridButtonGroup):
         for button in widget.group.buttons():
             setValue(button, button.text() in value)
+    elif isinstance(widget, ui.QTypeForm):
+        for name, row in widget.rows.items():
+            if name in value:
+                setValue(row.types,  value[name][0])
+                setValue(row.format, value[name][1])
+                setValue(row.unit,   value[name][2])
+                setValue(row.force,  value[name][3])
