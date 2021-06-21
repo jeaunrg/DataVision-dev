@@ -168,7 +168,10 @@ class View(QtWidgets.QMainWindow):
         load existing session
         """
         sessions = [i[:-5] for i in os.listdir(os.path.join(CONFIG_DIR, "sessions")) if i != '.gitignore']
-        session_ind = sessions.index(DEFAULT['last_session'])
+        if DEFAULT['last_session'] in sessions:
+            session_ind = sessions.index(DEFAULT['last_session'])
+        else:
+            session_ind = 0
         session, ok = QtWidgets.QInputDialog.getItem(self, "Sessions", 'open session:', sessions, session_ind, False)
         if ok:
             self._password = None

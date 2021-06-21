@@ -125,6 +125,8 @@ class Presenter():
                 prm(*args).column.addItems([''] + colnames)
                 prm(*args).group_by.clear()
                 prm(*args).group_by.addItems([''] + colnames)
+                prm(*args).group_by_time.clear()
+                prm(*args).group_by_time.addItems([''] + colnames)
 
             elif mtype == "selectColumns":
                 grid = ui.QGridButtonGroup(3)
@@ -410,6 +412,8 @@ class Presenter():
         func_args = {"df": utils.get_data(parent_name(*args)),
                      "column": empty_to_none(prm(*args).column.currentText()),
                      "groupBy": empty_to_none(prm(*args).group_by.currentText()),
+                     "groupByTime": empty_to_none(prm(*args).group_by_time.currentText()),
+                     "round_freq": prm(*args).roundFreq.currentText(),
                      "statistics": utils.get_checked(prm(*args), ["count", "minimum", "maximum",
                                                                   "mean", "sum", "median", "std"]),
                      "ignore_nan": prm(*args).ignore_nan.isChecked()}

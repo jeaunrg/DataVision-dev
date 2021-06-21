@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>316</width>
-    <height>187</height>
+    <width>318</width>
+    <height>267</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -69,6 +69,93 @@
         <bool>true</bool>
        </property>
       </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>group by time:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QComboBox" name="group_by_time">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_12">
+         <property name="text">
+          <string>frequency</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="roundFreq">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="editable">
+          <bool>true</bool>
+         </property>
+         <property name="currentIndex">
+          <number>1</number>
+         </property>
+         <item>
+          <property name="text">
+           <string>M</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>D</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>H</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>min</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>S</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>ms</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>us</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>N</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+      </layout>
      </item>
     </layout>
    </item>

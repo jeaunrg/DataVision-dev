@@ -73,8 +73,10 @@ class Model():
             return df
         elif pd.api.types.is_timedelta64_dtype(df[colname]):
             df[colname] = eval("df[colname].dt.{0}('{1}')".format(mode, freq))
+        elif pd.api.types.is_datetime64_dtype(df[colname]):
+            df[colname] = eval("df[colname].dt.{0}('{1}')".format(mode, freq))
         else:
-            print(df[colname])
+            raise ValueError("column '{0}' of type '{1}' cannot be rounded.".format(colname, df[colname].dtype))
         return df
 
     def quick_plot(self, df, index=None):
@@ -186,13 +188,19 @@ class Model():
             raise SyntaxError("incorrect formula")
         return df
 
-    def compute_stats(self, df, column, groupBy=None,
+    def compute_stats(self, df, column, groupBy=None, groupByTime=None, round_freq="D",
                       statistics=["count", "minimum", "maximum", "mean", "sum", "median", "std"],
                       ignore_nan=True, out_as_dict=False):
         """
         compute stats (recursively) if 'by' argument is set
         """
-        if groupBy is None:
+        if groupByTime is not None:
+            df = self.round(df, groupByTime, freq=round_freq)
+            new_groupBy = groupByTime if groupBy is None else [groupBy, groupByTime]
+            return self.compute_stats(df, column, groupBy=new_groupBy, groupByTime=None,
+                                      statistics=statistics, ignore_nan=ignore_nan,
+                                      out_as_dict=out_as_dict)
+        elif groupBy is None:
             if column is None:
                 arr = df
             else:
@@ -223,6 +231,7 @@ class Model():
             if not out_as_dict:
                 d = pd.DataFrame.from_dict({"total": d}).T
             return d
+
         else:
             # compute stats recursively for each 'by'
             d = {}
@@ -235,7 +244,8 @@ class Model():
                 d[ind] = out
             if not out_as_dict:
                 d = pd.DataFrame.from_dict(d).T
-            d = d.reset_index()
+                d.index.names = groupBy
+                d = d.reset_index()
             return d
 
     def get_selections(self, data, equal_to=None, different_from=None, higher_than=None, lower_than=None):
