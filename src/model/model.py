@@ -7,6 +7,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import xlrd
 import openpyxl
+import os
 
 
 class Model():
@@ -287,6 +288,9 @@ class Model():
         return df[columns]
 
     def save_data(self, dfs, path):
+        dir, _ = os.path.split(path)
+        if not os.path.exists(dir):
+            os.makedirs(dir)
         if not isinstance(dfs, list):
             dfs = [dfs]
         for i, df in enumerate(dfs):
